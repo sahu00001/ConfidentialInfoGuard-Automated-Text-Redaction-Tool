@@ -1,18 +1,18 @@
-import nltk
-import re
 import os
+import nltk
 import glob
-import spacy
+import re
 import sys
+import spacy
 import argparse
 import logging
+from nltk.corpus import wordnet
+from os import path
+from spacy.matcher import Matcher
 nltk.download('punkt')
 nltk.download('words')
 nltk.download('wordnet')
 nltk.download('omw-1.4')
-from nltk.corpus import wordnet
-from os import path
-from spacy.matcher import Matcher
 
 nlp=spacy.load('en_core_web_md')
 
@@ -51,38 +51,38 @@ def name_redaction(data):
             if ent.label_ in ['PERSON', 'ORG']:
                 d = d[:ent.start_char] + '\u2588' * (ent.end_char - ent.start_char) + d[ent.end_char:]
                 count += 1
-        return (d, count)  # return the redacted text and the count of redacted names
+        return (d, count)  
 
-    li_with_count = list(map(redact_names, data))  # get a list of tuples (redacted_text, count)
+    li_with_count = list(map(redact_names, data))  
 
-    redacted_text_list = [t[0] for t in li_with_count]  # get a list of the redacted text only
+    redacted_text_list = [t[0] for t in li_with_count]
 
-    nameRedactionCount = str(sum([t[1] for t in li_with_count]))  # get the sum of all the counts
+    nameRedactionCount = str(sum([t[1] for t in li_with_count]))
     part = "Number of names that are redacted: "
     finalStat = part + nameRedactionCount
     statsList.append(finalStat)
 
-    return redacted_text_list  # return only the redacted text list
+    return redacted_text_list  
 
 
 def date_redaction(data):
     def redact_date(d):
         doc = nlp(d)
-        count = 0  # Initialize count to zero
+        count = 0  
         for ent in doc.ents:
             if ent.label_ == 'DATE':
                 d = d.replace(ent.text, '\u2588' * len(ent.text))
-                count += 1  # Increment count for each redacted date
-        return d, count  # Return the redacted text and the count
+                count += 1
+        return d, count 
 
     li = []
-    total_dates_redacted = 0  # Initialize total count of dates redacted
+    total_dates_redacted = 0  
     for d in data:
-        redacted_text, count = redact_date(d)  # Call the redact_date function and obtain redacted text and count
-        li.append(redacted_text)  # Append redacted text to the list
-        total_dates_redacted += count  # Add count to the total count of dates redacted
+        redacted_text, count = redact_date(d)  
+        li.append(redacted_text)  
+        total_dates_redacted += count  
 
-    dateRedactionCount = str(total_dates_redacted)  # Convert total count to string
+    dateRedactionCount = str(total_dates_redacted)
     part = "Number of dates that are redacted: "
     finalStat = part + dateRedactionCount
     statsList.append(finalStat)
