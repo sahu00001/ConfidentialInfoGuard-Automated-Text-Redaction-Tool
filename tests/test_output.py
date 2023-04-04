@@ -13,7 +13,6 @@ def test_output(tmp_path):
     loc = str(tmp_path)
     output(filelist, data, loc)
 
-    # Check that the redacted files were created in the correct location
     expected_files = ["test_input_1.txt.redacted", "test_input_2.txt.redacted"]
     for expected_file in expected_files:
         assert os.path.isfile(os.path.join(loc, expected_file))
